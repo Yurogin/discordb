@@ -1,0 +1,39 @@
+{
+  "name": "discordb",
+  "version": "0.1.0",
+  "description": "Use a Discord server as a tiny NoSQL database: channels are tables, messages are JSON documents.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "test": "node test/live.mjs"
+  },
+  "keywords": [
+    "discord",
+    "database",
+    "nosql",
+    "json",
+    "discord-bot",
+    "storage"
+  ],
+  "author": "Yurogin",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "typescript": "^5.9.3"
+  }
+}
