@@ -13,11 +13,6 @@ export class DiscorDBError extends Error {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/**
- * Minimal Discord REST client.
- * Requests are queued per route (method + channel/guild) and follow Discord's
- * rate-limit headers, so callers can fire requests without thinking about 429s.
- */
 export class Rest {
   private queues = new Map<string, Promise<unknown>>();
   private globalUntil = 0;
@@ -56,7 +51,6 @@ export class Rest {
       return this.send(method, path, body, attempt + 1);
     }
 
-    // Bucket exhausted: hold this queue until it resets.
     if (res.headers.get("x-ratelimit-remaining") === "0") {
       const resetAfter = Number(res.headers.get("x-ratelimit-reset-after") ?? 0);
       if (resetAfter > 0) await sleep(resetAfter * 1000);

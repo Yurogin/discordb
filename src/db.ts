@@ -12,7 +12,6 @@ type Message = { id: string; content: string; type: number; author: { id: string
 
 export type Data = Record<string, unknown>;
 
-/** A stored document: your data plus the message id and creation date. */
 export type Doc<T extends object = Data> = T & { readonly _id: string; readonly _createdAt: Date };
 
 export type FindOptions<T> = { sort?: Sort<T>; limit?: number; skip?: number };
@@ -20,16 +19,9 @@ export type FindOptions<T> = { sort?: Sort<T>; limit?: number; skip?: number };
 export type Changes<T extends object> = Partial<T> | ((doc: Doc<T>) => Partial<T>);
 
 export interface DiscorDBOptions {
-  /** Bot token. Or pass `client`. */
   token?: string;
-  /** A logged-in discord.js (or compatible) client; its token is reused. */
   client?: { token: string | null };
-  /** Guild (server) id. */
   guild: string;
-  /**
-   * Category holding the tables: an id, or a name (created if missing).
-   * Defaults to "discordb".
-   */
   category?: string;
 }
 
@@ -71,7 +63,7 @@ function serialize(doc: Data): string {
 }
 
 export class DiscorDB {
-  /** @internal */ readonly rest: Rest;
+  readonly rest: Rest;
   readonly guildId: string;
   private categoryOption: string;
   private tablesCache = new Map<string, Table<any>>();
@@ -88,7 +80,6 @@ export class DiscorDB {
     this.categoryOption = options.category ?? "discordb";
   }
 
-  /** Get a table. The channel is created on first write if it doesn't exist. */
   table<T extends object = Data>(name: string): Table<T> {
     const key = tableName(name);
     let table = this.tablesCache.get(key);
@@ -96,13 +87,11 @@ export class DiscorDB {
     return table as Table<T>;
   }
 
-  /** Names of all tables in the category. */
   async tables(): Promise<string[]> {
     const { tables } = await this.loadChannels(true);
     return [...tables.keys()];
   }
 
-  /** Delete a table and all its documents. */
   async drop(name: string): Promise<boolean> {
     const key = tableName(name);
     const channel = (await this.loadChannels()).tables.get(key);
@@ -113,13 +102,11 @@ export class DiscorDB {
     return true;
   }
 
-  /** @internal */
   botId(): Promise<string> {
     this.me ??= this.rest.request<{ id: string }>("GET", "/users/@me").then((u) => u.id);
     return this.me;
   }
 
-  /** @internal Returns the channel of a table, or null (or creates it when `create` is true). */
   async channel(name: string, create: boolean): Promise<Channel | null> {
     const { category, tables } = await this.loadChannels();
     const existing = tables.get(name);
@@ -168,14 +155,10 @@ export class Table<T extends object = Data> {
     readonly name: string,
   ) {}
 
-  /* ---------- Reading ---------- */
-
-  /** All documents matching `filter`, in insertion order unless `sort` is given. */
   async find(filter?: Filter<Doc<T>>, options: FindOptions<Doc<T>> = {}): Promise<Doc<T>[]> {
     let docs = [...(await this.load()).values()].filter((d) => matches(d, filter));
     if (options.sort) docs.sort(sorter(options.sort));
     const start = options.skip ?? 0;
-    // Copies, so mutating a result doesn't silently change the cache.
     return docs.slice(start, options.limit === undefined ? undefined : start + options.limit).map((d) => ({ ...d }));
   }
 
@@ -183,7 +166,6 @@ export class Table<T extends object = Data> {
     return (await this.find(filter, { ...options, limit: 1 }))[0] ?? null;
   }
 
-  /** Get a document by its `_id`. */
   async get(id: string): Promise<Doc<T> | null> {
     const doc = (await this.load()).get(id);
     return doc ? { ...doc } : null;
@@ -192,8 +174,6 @@ export class Table<T extends object = Data> {
   async count(filter?: Filter<Doc<T>>): Promise<number> {
     return filter ? (await this.find(filter)).length : (await this.load()).size;
   }
-
-  /* ---------- Writing ---------- */
 
   async insert(data: T): Promise<Doc<T>> {
     const content = serialize(data as Data);
@@ -214,11 +194,6 @@ export class Table<T extends object = Data> {
     return out;
   }
 
-  /**
-   * Update the documents matching `target` (a filter, a document or an `_id`).
-   * `changes` is merged into each document; set a key to `undefined` to remove it.
-   * Returns the updated documents.
-   */
   async update(target: Target<T>, changes: Changes<T>): Promise<Doc<T>[]> {
     const docs = await this.resolve(target);
     const channel = await this.db.channel(this.name, false);
@@ -243,12 +218,10 @@ export class Table<T extends object = Data> {
     return doc ? (await this.update(doc, changes))[0] : null;
   }
 
-  /** Update the first match, or insert `changes` merged with the equality fields of `filter`. */
   async upsert(filter: Partial<T>, changes: Partial<T>): Promise<Doc<T>> {
     return (await this.updateOne(filter as Target<T>, changes)) ?? this.insert({ ...filter, ...changes } as T);
   }
 
-  /** Delete the documents matching `target`. Returns how many were deleted. */
   async delete(target: Target<T>): Promise<number> {
     const docs = await this.resolve(target);
     if (docs.length === 0) return 0;
@@ -276,31 +249,22 @@ export class Table<T extends object = Data> {
     return doc ? (await this.delete(doc)) === 1 : false;
   }
 
-  /** Delete every document, keeping the table. */
   async clear(): Promise<number> {
     return this.delete(() => true);
   }
 
-  /** Delete the table (the channel) itself. */
   drop(): Promise<boolean> {
     return this.db.drop(this.name);
   }
 
-  /**
-   * Documents are cached in memory after the first read. Call this if something else
-   * (another process, the dashboard, a human) wrote to the channel meanwhile.
-   */
   async refresh(): Promise<void> {
     this.reset();
     await this.load();
   }
 
-  /** @internal */
   reset() {
     this.rows = undefined;
   }
-
-  /* ---------- Internals ---------- */
 
   private toDoc(id: string, data: T): Doc<T> {
     return Object.assign({ _id: id, _createdAt: timestampOf(id) }, data) as Doc<T>;
@@ -333,9 +297,8 @@ export class Table<T extends object = Data> {
         if (batch.length < 100) break;
         before = batch[batch.length - 1].id;
       }
-      // Only the bot's own messages are documents: it can read them without the
-      // Message Content intent, and it can't edit anybody else's anyway.
       for (const m of messages.reverse()) {
+        // Only the bot's own messages: readable without the Message Content intent.
         if (m.author.id !== botId) continue;
         const data = parse(m.content);
         if (data) rows.set(m.id, this.toDoc(m.id, data as T));

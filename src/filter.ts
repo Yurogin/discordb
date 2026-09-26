@@ -13,10 +13,6 @@ export type Operators<V> = {
 
 type Condition<V> = V | RegExp | Operators<V>;
 
-/**
- * Mongo-like query: `{ role: "admin", score: { $gte: 100 }, "stats.level": 3 }`,
- * `{ $or: [...] }`, or a plain predicate function.
- */
 export type Filter<T> =
   | ((doc: T) => boolean)
   | ({ [K in keyof T]?: Condition<T[K]> } & {
@@ -98,7 +94,6 @@ export function matches<T>(doc: T, filter?: Filter<T>): boolean {
 
 export type Sort<T> = keyof T | `-${string & keyof T}` | string | { [path: string]: 1 | -1 };
 
-/** `"score"`, `"-score"` or `{ score: -1, username: 1 }`. */
 export function sorter<T>(sort: Sort<T>): (a: T, b: T) => number {
   const entries: [string, number][] =
     typeof sort === "object"

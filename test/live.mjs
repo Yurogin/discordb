@@ -1,5 +1,4 @@
-// Live test against a real server:
-//   DISCORD_TOKEN=... GUILD_ID=... [CATEGORY=discordb-test] npm test
+// DISCORD_TOKEN=... GUILD_ID=... [CATEGORY=discordb-test] npm test
 import { DiscorDB } from "../dist/index.js";
 import assert from "node:assert/strict";
 

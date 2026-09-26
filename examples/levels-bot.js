@@ -1,5 +1,3 @@
-// A discord.js bot that gives XP for each message and answers /rank.
-// npm i discord.js discordb
 import { Client, Events, GatewayIntentBits } from "discord.js";
 import { DiscorDB } from "discordb";
 
