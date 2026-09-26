@@ -34,11 +34,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Yurogin/discorddb.git"
+    "url": "git+https://github.com/Yurogin/discordb.git"
   },
-  "homepage": "https://github.com/Yurogin/discorddb#readme",
+  "homepage": "https://github.com/Yurogin/discordb#readme",
   "bugs": {
-    "url": "https://github.com/Yurogin/discorddb/issues"
+    "url": "https://github.com/Yurogin/discordb/issues"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",

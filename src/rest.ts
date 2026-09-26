@@ -37,7 +37,7 @@ export class Rest {
       method,
       headers: {
         Authorization: `Bot ${this.token}`,
-        "User-Agent": "DiscordBot (https://github.com/Yurogin/discorddb, 0.1.0)",
+        "User-Agent": "DiscordBot (https://github.com/Yurogin/discordb, 0.1.0)",
         ...(body !== undefined && { "Content-Type": "application/json" }),
       },
       body: body === undefined ? undefined : JSON.stringify(body),
