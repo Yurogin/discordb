@@ -32,6 +32,14 @@
   ],
   "author": "Yurogin",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yurogin/discorddb.git"
+  },
+  "homepage": "https://github.com/Yurogin/discorddb#readme",
+  "bugs": {
+    "url": "https://github.com/Yurogin/discorddb/issues"
+  },
   "devDependencies": {
     "@types/node": "^26.6.3",
     "typescript": "^5.9.3"
