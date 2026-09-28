@@ -1,5 +1,13 @@
 # discordb
 
+[![npm](https://img.shields.io/npm/v/discordb?color=cb3837&logo=npm)](https://www.npmjs.com/package/discordb)
+[![téléchargements](https://img.shields.io/npm/dm/discordb?color=cb3837)](https://www.npmjs.com/package/discordb)
+[![licence](https://img.shields.io/npm/l/discordb)](LICENSE)
+
+```sh
+npm i discordb
+```
+
 Use a Discord server as a tiny NoSQL database. **Channels are tables, messages are JSON documents.**
 
 ```js
