@@ -1,4 +1,4 @@
-# discordb
+[![discordb — Channels are tables. Messages are documents.](https://raw.githubusercontent.com/Yurogin/discordb/main/assets/banner.png)](https://www.npmjs.com/package/discordb)
 
 [![npm](https://img.shields.io/npm/v/discordb?color=cb3837&logo=npm)](https://www.npmjs.com/package/discordb)
 [![téléchargements](https://img.shields.io/npm/dm/discordb?color=cb3837)](https://www.npmjs.com/package/discordb)
